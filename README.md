@@ -1,2 +1,2 @@
 # ITWS
-Repository for ITWS
+Repository for IT Workshop assignment
