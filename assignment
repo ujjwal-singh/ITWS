@@ -62,3 +62,153 @@ class LPsolver:
 lps=LPsolver()                                                              # object creation
 solution=lps.solve([2,5,7],[[1,0,0,200],[0,1,0,10],[0,0,1,200],[1,2,3,700]],option="Simplex")     # calling Simplex method
 print(solution)
+
+# New Class #
+
+class LinearSystemSolver:
+
+    # Class LinearSystemSolver created by --
+    # Name  : SUSHISH KUMAR
+    # S.no. : 69
+
+    def solve(self,A,B,method,max_iterations,accuracy,initial_guess):
+        if(method=="gauss"):
+            return (self.Gauss(A,B))
+        elif(method=="gauss-jordan"):
+            return (self.GaussJordan(A,B))
+        else:
+            return (self.GaussSiedel(A,B,max_iterations,accuracy,initial_guess))
+
+    def Gauss(self,A,B):                                                    # Gauss function takes two lists as arguments
+                                                                            # A is the co-efficient matrix, B is matrix of constants
+
+        # Suppose we have to solve the system --
+        # 1.x+1.y+1.z=10
+        # 0.x+1.y+0.z=2
+        # 0.x+0.y+1.z=5
+        # Then --
+        # A=[[1,1,1],[0,1,0],[0,0,1]]
+        # B=[10,2,5]
+        
+        n=len(A)                                                            # finding order of co-efficient matrix
+        mat=[[0 for i in range(n+1)] for j in range(n)]                     # initialising the augmented matrix
+        for i in range(n):
+            for j in range(n):
+                mat[i][j]=A[i][j]                                           # filling up the entries of matrix A
+        for i in range(n):
+            mat[i][n]=B[i]                                                  # filling up the entries of matrix B
+        for i in range(n-1):
+            if(mat[i][i]==0):                                               # checking if the pivot is 0
+                flag=0  
+                for j in range(i+1,n):
+                    if(mat[j][i]!=0):
+                        temp=mat[j]                                         # swapping rows if pivot is 0
+                        mat[j]=mat[i]
+                        mat[i]=temp
+                        flag=1
+                        break
+                if(flag==0):                                                
+                    continue                                                # continue if the column contains only 0s
+            for j in range(i+1,n):
+                temp=mat[j][i]/mat[i][i]                                    
+                for k in range(n+1):                                        # performing row operations to make the entries below the pivot=0
+                    if(k==i):
+                        mat[j][k]=0.0
+                    else:
+                        mat[j][k]=mat[j][k]-temp*mat[i][k]
+        solutions=[0 for i in range(n)]                                     # initialisng the matrix containing the solution matrix
+        for i in range(n-1,-1,-1):
+            s=0
+            for j in range(n):                                              # solving using back substitution
+                s+=mat[i][j]*solutions[j]
+            solutions[i]=(mat[i][n]-s)/mat[i][i]
+        return(solutions)                                                   # returning solution matrix
+
+    def GaussJordan(self,A,B):                                              # GaussJordan function takes two lists as arguments
+                                                                            # A is the co-efficient matrix, B is matrix of constants
+
+        # Suppose we have to solve the system --
+        # 1.x+1.y+1.z=6
+        # 2.x+1.y+(-1).z=1
+        # (-1).x+2.y+2.z=9
+        # Then --
+        # A=[[1,1,1],[2,1,-1],[-1,2,2]]
+        # B=[6,1,9]
+        
+        n=len(A)                                                            # finding order of co-efficient matrix
+        mat=[[0 for i in range(n+1)] for j in range(n)]                     # initialising the augmented matrix
+        for i in range(n):
+            for j in range(n):
+                mat[i][j]=A[i][j]                                           # filling up the entries of matrix A
+        for i in range(n):
+            mat[i][n]=B[i]                                                  # filling up the entries of matrix B
+        for i in range(n):
+            if(mat[i][i]==0):                                               # checking if the pivot is 0
+                flag=0
+                for j in range(n):
+                    if(mat[j][i]!=0):
+                        temp=mat[j]                                         # swapping rows if pivot is 0
+                        mat[j]=mat[i]
+                        mat[i]=temp
+                        flag=1
+                        break
+                if(flag==0):
+                    continue                                                # continue if the column contains only 0s
+            for j in range(n):
+                if(j==i):
+                    continue
+                temp=mat[j][i]/mat[i][i]
+                for k in range(n+1):                                        # performing row operations to make the entries in the the pivot column=0
+                    if(k==i):
+                        mat[j][k]=0.0
+                    else:
+                        mat[j][k]=mat[j][k]-temp*mat[i][k]
+        solutions=[0 for i in range(n)]                                     # initialisng the matrix containing the solution matrix
+        for i in range(n):                                                  
+            solutions[i]=mat[i][n]/mat[i][i]                                # solving
+        return(solutions)                                                   # returning solution matrix
+    
+    def GaussSiedel(self,A,B,max_iterations,accuracy,initial_guess):        # GaussSiedel function takes two lists as arguments 
+                                                                            # A is the co-efficient matrix, B is matrix of constants         
+
+        # Suppose we have to solve the system --
+        # 1.x+1.y+1.z=10
+        # 0.x+1.y+0.z=2
+        # 0.x+0.y+1.z=5
+        # Then --
+        # A=[[1,1,1],[0,1,0],[0,0,1]]
+        # B=[10,2,5]
+        # max_iterations is the maximum number of iterations
+        # accuracy is the desired amount of Accuracy
+        # initial_guess is the starting matrix, e.g.--
+        #initial_guess=[1,1,1]
+        
+        from numpy import matrix                                            # maximmum allowed iterations, desired accuracy and initial guess as argument
+        from numpy.linalg import inv
+        n=len(A)                                                            # finding order of co-efficient matrix
+        mat=matrix(A)                                                       # defining co-efficient matrix
+        b=matrix(B).transpose()                                             # defining constant matrix
+        L=[[0 for i in range(n)] for j in range(n)]                         # initialising lower triangular matrix
+        for i in range(n):
+            for j in range(i,n):
+                L[j][i]=A[j][i]                                             # filling up lower triangular matrix
+        L=matrix(L)                                                                   
+        U=mat-L                                                             # defining strict upper triangular matrix
+        T=((-1)*inv(L))*U                                                   # calculating -U*(inverse of L)     
+        C=inv(L)*b                                                          # calculating (inverse of L)*b
+        diff,count=1,0                                                      # count variable counts number of iterations     
+        x=matrix([[i] for i in initial_guess])                              # initialising solution matrix
+        while(diff>accuracy and count<max_iterations):                      # iteration loop
+            x_new=T*x+C                                                     # updating x
+            diff=(abs(x_new-x)).max()                                       # finding accuracy
+            x=x_new
+            count+=1
+        if(diff>accuracy):
+            return("Iterations exceed limit")                               # maximum iterations exceeded 
+        else:
+            return(x.transpose())                                           # return solution matrix
+
+lss=LinearSystemSolver()                                                   # object creation
+for method in ["gauss","gauss-jordan","gauss-siedel"]:
+    solution=lss.solve([[1,1,1],[2,1,-1],[-1,2,2]],[6,1,9],method,10000,0.001,[1,1,1])
+    print(solution)
