@@ -1,5 +1,9 @@
 class LPsolver:
 
+    # Class LPsolver created by --
+    # Name  : UJJWAL SINGH
+    # S.no. : 70
+
     def solve(self,L,M,option):
         return (self.Simplex(L,M))
 
