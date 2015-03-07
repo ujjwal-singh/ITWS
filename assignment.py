@@ -388,8 +388,9 @@ class Interpolate:
                     st+=str(co_eff[i])+"x^"+str(i)+" "
                 else:
                     st+=" - "+str(-1*co_eff[i])+"x^"+str(i)+" "
-        st+=" + "+str(co_eff[0]) if co_eff[0]>0 else " - "+str(co_eff[0])
-        return (st)                                                         # return string
+        if(co_eff[0]!=0):
+            st+=" + "+str(co_eff[0]) if co_eff[0]>0 else " - "+str(-1*co_eff[0])
+        return (st)                                                         # return answer
 
     def Newton(self,L,M):                                                   # Newton function takes two lists as arguments
 
@@ -431,12 +432,13 @@ class Interpolate:
                     st+=str(co_eff[i])+"x^"+str(i)+" "
                 else:
                     st+=" - "+str(-1*co_eff[i])+"x^"+str(i)+" "
-        st+=" + "+str(co_eff[0]) if co_eff[0]>0 else " - "+str(co_eff[0])
-        return (st)                                                         # return string
+        if(co_eff[0]!=0):
+            st+=" + "+str(co_eff[0]) if co_eff[0]>0 else " - "+str(-1*co_eff[0])
+        return (st)                                                         # return answer
 
 apx=Interpolate()                                                          # object creation
 for method in ["newton","lagrange"]:
-    solution=apx.solve([1,2,3],[0,-1,0],method)
+    solution=apx.solve([1,2,3],[3,7,13],method)
     print(solution)
 
 # New Class #
