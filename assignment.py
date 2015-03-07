@@ -94,6 +94,15 @@ class LinearSystemSolver:
     # Name  : SUSHISH KUMAR
     # S.no. : 69
 
+    def __init__(self):                                                     # initialising instance variables
+        self.A=None
+        self.b=None
+        self.max_iterations=None
+        self.accuracy=None
+        self.initial_guess=None
+        self.augmented=None
+        self.result=None
+    
     def solve(self,A,B,method,max_iterations,accuracy,initial_guess):
         if(method=="gauss"):
             return (self.Gauss(A,B))
@@ -113,39 +122,41 @@ class LinearSystemSolver:
         # A=[[1,1,1],[0,1,0],[0,0,1]]
         # B=[10,2,5]
         
-        n=len(A)                                                            # finding order of co-efficient matrix
-        mat=[[0 for i in range(n+1)] for j in range(n)]                     # initialising the augmented matrix
+        self.A=A
+        self.b=B
+        n=len(self.A)                                                       # finding order of co-efficient matrix
+        self.augmented=[[0 for i in range(n+1)] for j in range(n)]          # initialising the augmented matrix
         for i in range(n):
             for j in range(n):
-                mat[i][j]=A[i][j]                                           # filling up the entries of matrix A
+                self.augmented[i][j]=self.A[i][j]                           # filling up the entries of matrix A
         for i in range(n):
-            mat[i][n]=B[i]                                                  # filling up the entries of matrix B
+            self.augmented[i][n]=self.b[i]                                  # filling up the entries of matrix b
         for i in range(n-1):
-            if(mat[i][i]==0):                                               # checking if the pivot is 0
+            if(self.augmented[i][i]==0):                                    # checking if the pivot is 0
                 flag=0  
                 for j in range(i+1,n):
-                    if(mat[j][i]!=0):
-                        temp=mat[j]                                         # swapping rows if pivot is 0
-                        mat[j]=mat[i]
-                        mat[i]=temp
+                    if(self.augmented[j][i]!=0):
+                        temp=self.augmented[j]                              # swapping rows if pivot is 0
+                        self.augmented[j]=self.augmented[i]
+                        self.augmented[i]=temp
                         flag=1
                         break
                 if(flag==0):                                                
                     continue                                                # continue if the column contains only 0s
             for j in range(i+1,n):
-                temp=mat[j][i]/mat[i][i]                                    
+                temp=self.augmented[j][i]/self.augmented[i][i]                                    
                 for k in range(n+1):                                        # performing row operations to make the entries below the pivot=0
                     if(k==i):
-                        mat[j][k]=0.0
+                        self.augmented[j][k]=0.0
                     else:
-                        mat[j][k]=mat[j][k]-temp*mat[i][k]
-        solutions=[0 for i in range(n)]                                     # initialisng the matrix containing the solution matrix
+                        self.augmented[j][k]=self.augmented[j][k]-temp*self.augmented[i][k]
+        self.result=[0 for i in range(n)]                                   # initialisng the matrix containing the solution matrix
         for i in range(n-1,-1,-1):
             s=0
             for j in range(n):                                              # solving using back substitution
-                s+=mat[i][j]*solutions[j]
-            solutions[i]=(mat[i][n]-s)/mat[i][i]
-        return(solutions)                                                   # returning solution matrix
+                s+=self.augmented[i][j]*self.result[j]
+            self.result[i]=(self.augmented[i][n]-s)/self.augmented[i][i]
+        return(self.result)                                                 # returning solution matrix
 
     def GaussJordan(self,A,B):                                              # GaussJordan function takes two lists as arguments
                                                                             # A is the co-efficient matrix, B is matrix of constants
@@ -158,21 +169,23 @@ class LinearSystemSolver:
         # A=[[1,1,1],[2,1,-1],[-1,2,2]]
         # B=[6,1,9]
         
-        n=len(A)                                                            # finding order of co-efficient matrix
-        mat=[[0 for i in range(n+1)] for j in range(n)]                     # initialising the augmented matrix
+        self.A=A
+        self.b=B
+        n=len(self.A)                                                       # finding order of co-efficient matrix
+        self.augmented=[[0 for i in range(n+1)] for j in range(n)]          # initialising the augmented matrix
         for i in range(n):
             for j in range(n):
-                mat[i][j]=A[i][j]                                           # filling up the entries of matrix A
+                self.augmented[i][j]=self.A[i][j]                           # filling up the entries of matrix A
         for i in range(n):
-            mat[i][n]=B[i]                                                  # filling up the entries of matrix B
+            self.augmented[i][n]=self.b[i]                                  # filling up the entries of matrix b
         for i in range(n):
-            if(mat[i][i]==0):                                               # checking if the pivot is 0
+            if(self.augmented[i][i]==0):                                    # checking if the pivot is 0
                 flag=0
                 for j in range(n):
-                    if(mat[j][i]!=0):
-                        temp=mat[j]                                         # swapping rows if pivot is 0
-                        mat[j]=mat[i]
-                        mat[i]=temp
+                    if(self.augmented[j][i]!=0):
+                        temp=self.augmented[j]                              # swapping rows if pivot is 0
+                        self.augmented[j]=self.augmented[i]
+                        self.augmented[i]=temp
                         flag=1
                         break
                 if(flag==0):
@@ -180,20 +193,20 @@ class LinearSystemSolver:
             for j in range(n):
                 if(j==i):
                     continue
-                temp=mat[j][i]/mat[i][i]
+                temp=self.augmented[j][i]/self.augmented[i][i]
                 for k in range(n+1):                                        # performing row operations to make the entries in the the pivot column=0
                     if(k==i):
-                        mat[j][k]=0.0
+                        self.augmented[j][k]=0.0
                     else:
-                        mat[j][k]=mat[j][k]-temp*mat[i][k]
-        solutions=[0 for i in range(n)]                                     # initialisng the matrix containing the solution matrix
+                        self.augmented[j][k]=self.augmented[j][k]-temp*self.augmented[i][k]
+        self.result=[0 for i in range(n)]                                   # initialisng the matrix containing the solution matrix
         for i in range(n):                                                  
-            solutions[i]=mat[i][n]/mat[i][i]                                # solving
-        return(solutions)                                                   # returning solution matrix
+            self.result[i]=self.augmented[i][n]/self.augmented[i][i]        # solving
+        return(self.result)                                                 # returning solution matrix
     
     def GaussSiedel(self,A,B,max_iterations,accuracy,initial_guess):        # GaussSiedel function takes two lists 
                                                                             # (A is the co-efficient matrix, B is matrix of constants),         
-                                                                            # maximmum allowed iterations, desired accuracy and initial guess as argument
+                                                                            # maximmum allowed iterations, desired accuracy and initial guess as arguments
 
         # Suppose we have to solve the system --
         # 1.x+1.y+1.z=10
@@ -209,32 +222,37 @@ class LinearSystemSolver:
         
         from numpy import matrix                                            
         from numpy.linalg import inv
-        n=len(A)                                                            # finding order of co-efficient matrix
-        mat=matrix(A)                                                       # defining co-efficient matrix
-        b=matrix(B).transpose()                                             # defining constant matrix
+        self.A=A
+        self.b=B
+        self.max_iterations=max_iterations
+        self.accuracy=accuracy
+        self.initial_guess=initial_guess
+        n=len(self.A)                                                       # finding order of co-efficient matrix
+        mat=matrix(self.A)                                                  # defining co-efficient matrix
+        self.b=matrix(self.b).transpose()                                   # defining constant matrix
         L=[[0 for i in range(n)] for j in range(n)]                         # initialising lower triangular matrix
         for i in range(n):
             for j in range(i,n):
-                L[j][i]=A[j][i]                                             # filling up lower triangular matrix
+                L[j][i]=self.A[j][i]                                        # filling up lower triangular matrix
         L=matrix(L)                                                                   
         U=mat-L                                                             # defining strict upper triangular matrix
         T=((-1)*inv(L))*U                                                   # calculating -U*(inverse of L)     
-        C=inv(L)*b                                                          # calculating (inverse of L)*b
+        C=inv(L)*self.b                                                     # calculating (inverse of L)*b
         diff,count=1,0                                                      # count variable counts number of iterations     
-        x=matrix([[i] for i in initial_guess])                              # initialising solution matrix
+        self.result=matrix([[i] for i in initial_guess])                    # initialising solution matrix
         while(diff>accuracy and count<max_iterations):                      # iteration loop
-            x_new=T*x+C                                                     # updating x
-            diff=(abs(x_new-x)).max()                                       # finding accuracy
-            x=x_new
+            x_new=T*self.result+C                                           # updating x
+            diff=(abs(x_new-self.result)).max()                             # finding accuracy
+            self.result=x_new
             count+=1
         if(diff>accuracy):
             return("Iterations exceed limit")                               # maximum iterations exceeded 
         else:
-            return(x.transpose())                                           # return solution matrix
+            return(((self.result.transpose()).ravel()).tolist())            # return solution matrix as a list
 
-lss=LinearSystemSolver()                                                   # object creation
+lss=LinearSystemSolver()                                                    # object creation
 for method in ["gauss","gauss-jordan","gauss-siedel"]:
-    solution=lss.solve([[1,1,1],[2,1,-1],[-1,2,2]],[6,1,9],method,10000,0.001,[1,1,1])
+    solution=lss.solve([[16,3],[7,-11]],[11,13],method,10000,0.001,[1,1])
     print(solution)
 
 # New Class #
