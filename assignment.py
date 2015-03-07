@@ -183,8 +183,9 @@ class LinearSystemSolver:
             solutions[i]=mat[i][n]/mat[i][i]                                # solving
         return(solutions)                                                   # returning solution matrix
     
-    def GaussSiedel(self,A,B,max_iterations,accuracy,initial_guess):        # GaussSiedel function takes two lists as arguments 
-                                                                            # A is the co-efficient matrix, B is matrix of constants         
+    def GaussSiedel(self,A,B,max_iterations,accuracy,initial_guess):        # GaussSiedel function takes two lists 
+                                                                            # (A is the co-efficient matrix, B is matrix of constants),         
+                                                                            # maximmum allowed iterations, desired accuracy and initial guess as argument
 
         # Suppose we have to solve the system --
         # 1.x+1.y+1.z=10
@@ -198,7 +199,7 @@ class LinearSystemSolver:
         # initial_guess is the starting matrix, e.g.--
         #initial_guess=[1,1,1]
         
-        from numpy import matrix                                            # maximmum allowed iterations, desired accuracy and initial guess as arguments
+        from numpy import matrix                                            
         from numpy.linalg import inv
         n=len(A)                                                            # finding order of co-efficient matrix
         mat=matrix(A)                                                       # defining co-efficient matrix
