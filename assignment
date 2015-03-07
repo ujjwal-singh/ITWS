@@ -362,7 +362,18 @@ class Interpolate:
         derivative=P.polyder(w)                                             # derivative of w
         for i in range(n):
             result+=(P.polydiv(w,(-1*L[i],1))[0]*M[i])/P.polyval(L[i],derivative)   # calculating result
-        return(list(result))                                                # return result as list
+        co_eff=list(result)                                                 # list of co-efficients
+        st=""                                                               # string to store final polynomial
+        for i in range(len(co_eff)-1,0,-1):                                 # building up the string
+            if(co_eff[i]!=0):
+                if(co_eff[i]>0 and i!=(len(co_eff)-1)):
+                    st+=" + "+str(co_eff[i])+"x^"+str(i)+" "
+                elif(co_eff[i]>0 and i==(len(co_eff)-1)):
+                    st+=str(co_eff[i])+"x^"+str(i)+" "
+                else:
+                    st+=" - "+str(-1*co_eff[i])+"x^"+str(i)+" "
+        st+=" + "+str(co_eff[0]) if co_eff[0]>0 else " - "+str(co_eff[0])
+        return (st)                                                         # return string
 
     def Newton(self,L,M):                                                   # Newton function takes two lists as arguments
 
@@ -394,7 +405,18 @@ class Interpolate:
             for j in range(1,i):
                 prod=P.polymul(prod,(-1*L[j],1))                            # calculating prod    
             result=P.polyadd(result,array(prod)*mat[0][i])                  # calculating result
-        return (list(result))                                               # return result as list
+        co_eff=list(result)                                                 # list of co-efficients
+        st=""                                                               # string to store final polynomial
+        for i in range(len(co_eff)-1,0,-1):                                 # building up the string
+            if(co_eff[i]!=0):
+                if(co_eff[i]>0 and i!=(len(co_eff)-1)):
+                    st+=" + "+str(co_eff[i])+"x^"+str(i)+" "
+                elif(co_eff[i]>0 and i==(len(co_eff)-1)):
+                    st+=str(co_eff[i])+"x^"+str(i)+" "
+                else:
+                    st+=" - "+str(-1*co_eff[i])+"x^"+str(i)+" "
+        st+=" + "+str(co_eff[0]) if co_eff[0]>0 else " - "+str(co_eff[0])
+        return (st)                                                         # return string
 
 apx=Interpolate()                                                          # object creation
 for method in ["newton","lagrange"]:
