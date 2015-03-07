@@ -4,6 +4,12 @@ class LPsolver:
     # Name  : UJJWAL SINGH
     # S.no. : 70
 
+    def __init__(self):                                                     # Initialising instance variables
+        self.objective=None
+        self.constraints=None
+        self.table=None
+        self.result=None
+    
     def solve(self,L,M,option):
         return (self.Simplex(L,M))
 
@@ -17,65 +23,67 @@ class LPsolver:
         # M=[[1,0,0,200],[0,1,0,10],[0,0,1,200],[1,2,3,700]], i.e.,
         # 1.x+0.y+0.z<=200 , 0.x+1.y+0.z<=10 , 0.x+0.y+1.z<=200 and 1.x+2.y+3.z<=700
         
-        no_of_variables=len(L)                                              # variable to store total number of variables
-        no_of_equations=len(M)                                              # variable to store total number of equations(constraints)
-        mat=[[0 for i in range(no_of_variables+no_of_equations+2)] for j in range(no_of_equations+1)]   # initialising the augmented matrix
+        self.objective=L
+        self.constraints=M
+        no_of_variables=len(self.objective)                                 # variable to store total number of variables
+        no_of_equations=len(self.constraints)                               # variable to store total number of equations(constraints)
+        self.table=[[0 for i in range(no_of_variables+no_of_equations+2)] for j in range(no_of_equations+1)]   # initialising the augmented matrix
         for i in range(no_of_equations):
             for j in range(no_of_variables):
-                mat[i][j]=M[i][j]                                           # filling up the matrix
+                self.table[i][j]=self.constraints[i][j]                     # filling up the matrix
         for i in range(no_of_variables):
-            mat[no_of_equations][i]=(-1)*L[i]                               # filling up the matrix
+            self.table[no_of_equations][i]=(-1)*self.objective[i]           # filling up the matrix
         for i in range(no_of_equations+1):
-            mat[i][no_of_variables+i]=1                                     # filling up the matrix
+            self.table[i][no_of_variables+i]=1                              # filling up the matrix
         for i in range(no_of_equations):
-            mat[i][no_of_variables+no_of_equations+1]=M[i][-1]              # filling up the matrix
-        mat[-1][-1]=0                                                       # matrix ready
+            self.table[i][no_of_variables+no_of_equations+1]=self.constraints[i][-1]              # filling up the matrix
+        self.table[-1][-1]=0                                                # matrix ready
         for i in range(no_of_equations+1):
-            mat[i][no_of_variables+i]=mat[i][-1]/mat[i][no_of_variables+i]
+            self.table[i][no_of_variables+i]=self.table[i][-1]/self.table[i][no_of_variables+i]
         flag=0
-        if(min(mat[no_of_equations])>=0):                                   # testing terminal condition
+        if(min(self.table[no_of_equations])>=0):                            # testing terminal condition
             flag=1
         while(flag==0):                                                     # loop
-            pivot_col=mat[no_of_equations].index(min(mat[no_of_equations])) # finding column of pivot
+            pivot_col=self.table[no_of_equations].index(min(self.table[no_of_equations])) # finding column of pivot
             pivot_row,temp,flag2=-1,0,0                                         
             for i in range(no_of_equations):                                                        
-                if(mat[i][pivot_col]>0 and (pivot_row==-1 or mat[i][-1]/mat[i][pivot_col]<temp)):   # finding row of pivot
+                if(self.table[i][pivot_col]>0 and (pivot_row==-1 or self.table[i][-1]/self.table[i][pivot_col]<temp)):   # finding row of pivot
                     pivot_row=i
-                    temp=mat[i][-1]/mat[i][pivot_col]
+                    temp=self.table[i][-1]/self.table[i][pivot_col]
                     flag2=1
             if(flag2==0):
                 return ("Unbound")                                          # terminal condition 
-            pivot=mat[pivot_row][pivot_col]
+            pivot=self.table[pivot_row][pivot_col]
             for i in range(no_of_equations+1):                              # loop to set all other elements of pivot's column to 0 by row operations
                 if(i==pivot_row):
                     continue
-                temp=mat[i][pivot_col]/pivot
+                temp=self.table[i][pivot_col]/pivot
                 for j in range(no_of_variables+no_of_equations+2):
                     if(j==pivot_col):
-                        mat[i][j]=0.0
+                        self.table[i][j]=0.0
                     else:    
-                        mat[i][j]=mat[i][j]-(temp*mat[pivot_row][j])
-            if(min(mat[no_of_equations])>=0):
+                        self.table[i][j]=self.table[i][j]-(temp*self.table[pivot_row][j])
+            if(min(self.table[no_of_equations])>=0):
                 flag=1                                                      # terminal condition
-        st=""                                                               # string to store final answer
+        self.result=""                                                      # string to store final answer
         for i in range(no_of_variables):                                    # building up the string
             count,temp,flag=0,0,1
             for j in range(no_of_equations+1):
-                if(mat[j][i]!=0):
+                if(self.table[j][i]!=0):
                     count+=1
                     if(count>1):
                         flag=0
                         break
-                    temp=mat[j][-1]/mat[j][i]
+                    temp=self.table[j][-1]/self.table[j][i]
             if(flag==1):
-                st+="x_"+str(i+1)+" = "+str(temp)+" ; "
+                self.result+="x_"+str(i+1)+" = "+str(temp)+" ; "
             else:
-                st+="x_"+str(i+1)+"=0 ; "
-        st+="Maximum value of objective = "+str(mat[-1][-1])
-        return (st)                                                         # return string
+                self.result+="x_"+str(i+1)+"=0 ; "
+        self.result+="Maximum value of objective = "+str(self.table[-1][-1])
+        return (self.result)                                                # return result
 
 lps=LPsolver()                                                              # object creation
-solution=lps.solve([1,3],[[1,2,10],[1,0,5],[0,1,4]],option="Simplex")     # calling Simplex method
+solution=lps.solve([1,3],[[1,2,10],[1,0,5],[0,1,4]],option="Simplex")       # calling Simplex method
 print(solution)
 
 # New Class #
