@@ -344,3 +344,96 @@ ps=PolynomialSolver()                                                     # obje
 for method in ["bisection","secant","secantrf","newtonraphson"]:
     solution=ps.solve(2,[14,-9,1],method,[1,2.5],[1,3],1,1000,0.00001)
     print(solution)
+
+# New Class #
+
+class Interpolate:
+    
+    # Class Interpolate created by --
+    # Name  : ROBIN CHAWLA
+    # S.no. : 57
+
+    def solve(self,L,M,method):
+        if(method=="newton"):
+            return (self.Newton(L,M))
+        else:
+            return (self.Lagrange(L,M))
+
+    def Lagrange(self,L,M):                                                 # Lagrange function takes two lists as argument
+        
+        # L contains the list of x values
+        # M contains the list of f(x) values
+        # e.g.-
+        #L=[1,2,3] , M=[0,-1,0]
+        # i.e., f(1)=0, f(2)=-1, f(3)=0
+        
+        from numpy import array
+        from numpy.polynomial import polynomial as P
+        n=len(L)                                                            # n=length of L, i.e., the number of points
+        w=(-1*L[0],1)                                                       # initialising polynomial w
+        for i in range(1,n):
+            w=P.polymul(w,(-1*L[i],1))                                      # calculating w
+        result=array([0.0 for i in range(len(w)-1)])                        # initialising result array
+        derivative=P.polyder(w)                                             # derivative of w
+        for i in range(n):
+            result+=(P.polydiv(w,(-1*L[i],1))[0]*M[i])/P.polyval(L[i],derivative)   # calculating result
+        co_eff=list(result)                                                 # list of co-efficients
+        st=""                                                               # string to store final polynomial
+        for i in range(len(co_eff)-1,0,-1):                                 # building up the string
+            if(co_eff[i]!=0):
+                if(co_eff[i]>0 and i!=(len(co_eff)-1)):
+                    st+=" + "+str(co_eff[i])+"x^"+str(i)+" "
+                elif(co_eff[i]>0 and i==(len(co_eff)-1)):
+                    st+=str(co_eff[i])+"x^"+str(i)+" "
+                else:
+                    st+=" - "+str(-1*co_eff[i])+"x^"+str(i)+" "
+        st+=" + "+str(co_eff[0]) if co_eff[0]>0 else " - "+str(co_eff[0])
+        return (st)                                                         # return string
+
+    def Newton(self,L,M):                                                   # Newton function takes two lists as arguments
+
+        # L contains the list of x values
+        # M contains the list of f(x) values
+        # e.g.-
+        #L=[1,2,3] , M=[0,-1,0]
+        # i.e., f(1)=0, f(2)=-1, f(3)=0
+        
+        from numpy import array
+        from numpy.polynomial import polynomial as P
+        n=len(L)                                                            # n=length of L, i.e., the number of points
+        mat=[[0.0 for i in range(n)] for j in range(n)]                     # initialising an n*n matrix 
+        for i in range(n):                                                  # filling 1st column of matrix with f(x) values
+            mat[i][0]=M[i]
+        for i in range(1,n):                                                # calculating entries of matrix
+            for j in range(n-i):
+                mat[j][i]=(mat[j+1][i-1]-mat[j][i-1])/(L[j+i]-L[j])
+        # The matrix is of the form (for 4 points - x,y,z,w)
+        #    f(x)    f(x,y)    f(x,y,z)    f(x,y,z,w)
+        #    f(y)    f(y,z)    f(y,z,w)    0
+        #    f(z)    f(z,w)    0           0 
+        #    f(w)    0         0           0
+        
+        result=array((mat[0][0],))                                          # initialising result array
+        for i in range(1,n):
+            prod=(-1*L[0],1)                                                # initialising prod polynomial which is to be multiplied
+                                                                            # with corresponding element of matrix mat
+            for j in range(1,i):
+                prod=P.polymul(prod,(-1*L[j],1))                            # calculating prod    
+            result=P.polyadd(result,array(prod)*mat[0][i])                  # calculating result
+        co_eff=list(result)                                                 # list of co-efficients
+        st=""                                                               # string to store final polynomial
+        for i in range(len(co_eff)-1,0,-1):                                 # building up the string
+            if(co_eff[i]!=0):
+                if(co_eff[i]>0 and i!=(len(co_eff)-1)):
+                    st+=" + "+str(co_eff[i])+"x^"+str(i)+" "
+                elif(co_eff[i]>0 and i==(len(co_eff)-1)):
+                    st+=str(co_eff[i])+"x^"+str(i)+" "
+                else:
+                    st+=" - "+str(-1*co_eff[i])+"x^"+str(i)+" "
+        st+=" + "+str(co_eff[0]) if co_eff[0]>0 else " - "+str(co_eff[0])
+        return (st)                                                         # return string
+
+apx=Interpolate()                                                          # object creation
+for method in ["newton","lagrange"]:
+    solution=apx.solve([1,2,3],[0,-1,0],method)
+    print(solution)
