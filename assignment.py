@@ -135,10 +135,8 @@ class LinearSystemSolver:
             if(self.augmented[i][i]==0):                                    # checking if the pivot is 0
                 flag=0  
                 for j in range(i+1,n):
-                    if(self.augmented[j][i]!=0):
-                        temp=self.augmented[j]                              # swapping rows if pivot is 0
-                        self.augmented[j]=self.augmented[i]
-                        self.augmented[i]=temp
+                    if(self.augmented[j][i]!=0):                            # swapping rows if pivot is 0
+                        self.augmented[i],self.augmented[j]=self.augmented[j],self.augmented[i]          
                         flag=1
                         break
                 if(flag==0):                                                
@@ -182,10 +180,8 @@ class LinearSystemSolver:
             if(self.augmented[i][i]==0):                                    # checking if the pivot is 0
                 flag=0
                 for j in range(n):
-                    if(self.augmented[j][i]!=0):
-                        temp=self.augmented[j]                              # swapping rows if pivot is 0
-                        self.augmented[j]=self.augmented[i]
-                        self.augmented[i]=temp
+                    if(self.augmented[j][i]!=0):                            # swapping rows if pivot is 0          
+                        self.augmented[i],self.augmented[j]=self.augmented[j],self.augmented[i]
                         flag=1
                         break
                 if(flag==0):
@@ -206,7 +202,7 @@ class LinearSystemSolver:
     
     def GaussSiedel(self,A,B,max_iterations,accuracy,initial_guess):        # GaussSiedel function takes two lists 
                                                                             # (A is the co-efficient matrix, B is matrix of constants),         
-                                                                            # maximmum allowed iterations, desired accuracy and initial guess as arguments
+                                                                            # maximmum allowed iterations, desired accuracy and initial guess as argument
 
         # Suppose we have to solve the system --
         # 1.x+1.y+1.z=10
