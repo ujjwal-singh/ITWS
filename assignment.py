@@ -259,6 +259,14 @@ class PolynomialSolver:
     # Name  : SUMAN KUMAR
     # S.no. : 67
 
+    def __init__(self):
+        self.order=None
+        self.co_eff=None
+        self.interval=None
+        self.initial_guess=None
+        self.max_iterations=None
+        self.accuracy=None
+
     def solve(self,order,co_eff,method,interval,initial_guess1,initial_guess2,max_iterations,accuracy):
 
         # initial_guess1 is a list of two starting values for Secant and SecantRF methods, e.g.- [1,3]
@@ -283,16 +291,20 @@ class PolynomialSolver:
         # max_iterations is the maximum allowed number of iterations
         # accuracy is the desired Accuracy
         
+        self.co_eff=L
+        self.interval=interval
+        self.max_iterations=max_iterations
+        self.accuracy=accuracy
         from numpy.polynomial import polynomial as P
         count=0                                                             # variable to count number of iterations
-        while(count<max_iterations):
-            if(P.polyval(interval[0],L)*P.polyval(interval[1],L)<0 and interval[1]-interval[0]<=accuracy):  # terminal condition
-                return (interval)                                           # return interval
-            m=(interval[0]+interval[1])/2
-            if(P.polyval(interval[0],L)*P.polyval(m,L)<0):
-                interval=[interval[0],m]                                    # bisection
+        while(count<self.max_iterations):
+            if(P.polyval(self.interval[0],self.co_eff)*P.polyval(self.interval[1],self.co_eff)<0 and self.interval[1]-self.interval[0]<=self.accuracy):  
+                return (self.interval)                                      # return interval (terminal condition)
+            m=(self.interval[0]+self.interval[1])/2
+            if(P.polyval(self.interval[0],self.co_eff)*P.polyval(m,self.co_eff)<0):
+                self.interval=[self.interval[0],m]                          # bisection
             else:
-                interval=[m,interval[1]]                                    # bisection
+                self.interval=[m,self.interval[1]]                          # bisection
             count+=1
         return ("Iterations exceed limit")
     
@@ -306,12 +318,16 @@ class PolynomialSolver:
         # max_iterations is the maximum allowed number of iterations
         # accuracy is the desired Accuracy
                 
+        self.co_eff=L
+        self.initial_guess=initial_guess
+        self.max_iterations=max_iterations
+        self.accuracy=accuracy
         from numpy.polynomial import polynomial as P
-        x,y=initial_guess[0],initial_guess[1]                               # x and y store the initial guesses
+        x,y=self.initial_guess[0],self.initial_guess[1]                     # x and y store the initial guesses
         count=0                                                             # variable to count number of iterations
-        while(count<max_iterations):
-            z=y-P.polyval(y,L)*((y-x)/(P.polyval(y,L)-P.polyval(x,L)))      # calculating next value
-            if(abs(P.polyval(z,L))<=accuracy):                              # terminal condition
+        while(count<self.max_iterations):
+            z=y-P.polyval(y,self.co_eff)*((y-x)/(P.polyval(y,self.co_eff)-P.polyval(x,self.co_eff))) # calculating next value
+            if(abs(P.polyval(z,self.co_eff))<=self.accuracy):               # terminal condition
                 return (z)                                                  # return value
             x,y=y,z                                                         # preparing for next iteration
             count+=1
@@ -327,14 +343,18 @@ class PolynomialSolver:
         # max_iterations is the maximum allowed number of iterations
         # accuracy is the desired Accuracy
         
+        self.co_eff=L
+        self.initial_guess=initial_guess
+        self.max_iterations=max_iterations
+        self.accuracy=accuracy
         from numpy.polynomial import polynomial as P
-        x,y=initial_guess[0],initial_guess[1]                               # x and y store the initial guesses
+        x,y=self.initial_guess[0],self.initial_guess[1]                     # x and y store the initial guesses
         count=0                                                             # variable to count number of iterations
-        while(count<max_iterations):
-            z=y-P.polyval(y,L)*((y-x)/(P.polyval(y,L)-P.polyval(x,L)))      # calculating next value
-            if(abs(P.polyval(z,L))<=accuracy):                              # terminal condition
+        while(count<self.max_iterations):
+            z=y-P.polyval(y,self.co_eff)*((y-x)/(P.polyval(y,self.co_eff)-P.polyval(x,self.co_eff))) # calculating next value
+            if(abs(P.polyval(z,self.co_eff))<=self.accuracy):               # terminal condition
                 return (z)                                                  # return value
-            if(P.polyval(x,L)*P.polyval(z,L)>0):                            # preparing for next iteration
+            if(P.polyval(x,self.co_eff)*P.polyval(z,self.co_eff)>0):        # preparing for next iteration
                 x,y=z,y
             else:
                 x,y=x,z                                                     # preparing for next iteration
@@ -351,13 +371,17 @@ class PolynomialSolver:
         # max_iterations is the maximum allowed number of iterations
         # accuracy is the desired Accuracy
         
+        self.co_eff=L
+        self.initial_guess=initial_guess
+        self.max_iterations=max_iterations
+        self.accuracy=accuracy
         from numpy.polynomial import polynomial as P
-        derivative=P.polyder(L)                                             # calculating derivative of polynomial
-        x=initial_guess                                                     # variable to store initial guess
+        derivative=P.polyder(self.co_eff)                                   # calculating derivative of polynomial
+        x=self.initial_guess                                                # variable to store initial guess
         count=0                                                             # variable to count iterations
-        while(count<max_iterations):
-            y=x-(P.polyval(x,L)/P.polyval(x,derivative))                    # calculating next value
-            if(abs(P.polyval(y,L))<=accuracy):                              # terminal condition
+        while(count<self.max_iterations):
+            y=x-(P.polyval(x,self.co_eff)/P.polyval(x,derivative))          # calculating next value
+            if(abs(P.polyval(y,self.co_eff))<=self.accuracy):               # terminal condition
                 return (y)                                                  # return value
             x=y                                                             # preparing for next iteration
             count+=1
