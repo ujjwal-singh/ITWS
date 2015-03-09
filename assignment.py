@@ -273,10 +273,11 @@ class PolynomialSolver:
         self.max_iterations=None
         self.accuracy=None
 
-    def solve(self,order,co_eff,method,interval,initial_guess1,initial_guess2,max_iterations,accuracy):
+    def solve(self,order,co_eff,interval,method,initial_guess1=[-1,1],initial_guess2=1,max_iterations=10000,accuracy=0.0001):
 
         # initial_guess1 is a list of two starting values for Secant and SecantRF methods, e.g.- [1,3]
         # initial_guess2 is the starting value for NewtonRaphson method, e.g.- 1 
+        # initial_guess1, initial_guess2, max_iterations and accuracy are optional arguments
 
         if(method=="bisection"):
             return (self.BisectionSearch(co_eff,interval,max_iterations,accuracy))
@@ -395,7 +396,7 @@ class PolynomialSolver:
 
 ps=PolynomialSolver()                                                     # object creation
 for method in ["bisection","secant","secantrf","newtonraphson"]:
-    solution=ps.solve(2,[14,-9,1],method,[1,2.5],[1,3],1,1000,0.00001)
+    solution=ps.solve(2,[14,-9,1],[1,2.5],method,[1,3],1,10000,0.0001)
     print(solution)
 
 # New Class #
