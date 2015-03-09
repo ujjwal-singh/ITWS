@@ -103,7 +103,10 @@ class LinearSystemSolver:
         self.augmented=None
         self.result=None
     
-    def solve(self,A,B,method,max_iterations,accuracy,initial_guess):
+    def solve(self,A,B,method,max_iterations=10000,accuracy=0.0001,initial_guess=None):
+        
+        # max_iterations, accuracy, and initial_guess are optional arguments
+        
         if(method=="gauss"):
             return (self.Gauss(A,B))
         elif(method=="gauss-jordan"):
@@ -202,7 +205,7 @@ class LinearSystemSolver:
     
     def GaussSiedel(self,A,B,max_iterations,accuracy,initial_guess):        # GaussSiedel function takes two lists 
                                                                             # (A is the co-efficient matrix, B is matrix of constants),         
-                                                                            # maximmum allowed iterations, desired accuracy and initial guess as argument
+                                                                            # maximmum allowed iterations, desired accuracy and initial guess as arguments
 
         # Suppose we have to solve the system --
         # 1.x+1.y+1.z=10
@@ -211,9 +214,9 @@ class LinearSystemSolver:
         # Then --
         # A=[[1,1,1],[0,1,0],[0,0,1]]
         # B=[10,2,5]
-        # max_iterations is the maximum number of iterations
-        # accuracy is the desired amount of Accuracy
-        # initial_guess is the starting matrix, e.g.--
+        # max_iterations (optional argument) is the maximum number of iterations 
+        # accuracy (optional argument) is the desired amount of Accuracy
+        # initial_guess (optional argument) is the starting matrix, e.g.--
         #initial_guess=[1,1,1]
         
         from numpy import matrix                                            
@@ -222,7 +225,10 @@ class LinearSystemSolver:
         self.b=B
         self.max_iterations=max_iterations
         self.accuracy=accuracy
-        self.initial_guess=initial_guess
+        if(initial_guess!=None):
+            self.initial_guess=initial_guess
+        else:
+            self.initial_guess=[1 for i in range(len(self.A))]
         n=len(self.A)                                                       # finding order of co-efficient matrix
         mat=matrix(self.A)                                                  # defining co-efficient matrix
         self.b=matrix(self.b).transpose()                                   # defining constant matrix
@@ -235,7 +241,7 @@ class LinearSystemSolver:
         T=((-1)*inv(L))*U                                                   # calculating -U*(inverse of L)     
         C=inv(L)*self.b                                                     # calculating (inverse of L)*b
         diff,count=1,0                                                      # count variable counts number of iterations     
-        self.result=matrix([[i] for i in initial_guess])                    # initialising solution matrix
+        self.result=matrix([[i] for i in self.initial_guess])                    # initialising solution matrix
         while(diff>accuracy and count<max_iterations):                      # iteration loop
             x_new=T*self.result+C                                           # updating x
             diff=(abs(x_new-self.result)).max()                             # finding accuracy
