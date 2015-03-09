@@ -500,7 +500,7 @@ class Interpolate:
 
 apx=Interpolate()                                                          # object creation
 for method in ["newton","lagrange"]:
-    solution=apx.solve([1,2,3],[3,7,13],method)
+    solution=apx.solve([-1,0,1,2],[-5,1,3,7],method)
     print(solution)
 
 # New Class #
