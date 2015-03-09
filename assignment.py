@@ -519,7 +519,10 @@ class Integrate:
         self.no_of_partitions=None
         self.result=None
 
-    def solve(self,S,interval,N,method):
+    def solve(self,S,interval,method,N=10000):
+        
+        # N is an optional argument used for controlling the number of partitions
+        
         if(method=="trapezoid"):
             return (self.TrapezoidalRule(S,interval,N))
         else:
@@ -592,5 +595,5 @@ class Integrate:
     
 igr=Integrate()                                                     # object creation
 for method in ["trapezoid","simpson"]:
-    solution=igr.solve("pow(sin(x),2)+cos(x)+exp(x**0.5)+log(x)",[1,2],10000,method)
+    solution=igr.solve("sin(x**0.5)+cos(x)+exp(pow(x,2))+log(x)",[1,2],method,10000)
     print (solution)
