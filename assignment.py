@@ -205,7 +205,7 @@ class LinearSystemSolver:
     
     def GaussSiedel(self,A,B,max_iterations,accuracy,initial_guess):        # GaussSiedel function takes two lists 
                                                                             # (A is the co-efficient matrix, B is matrix of constants),         
-                                                                            # maximmum allowed iterations, desired accuracy and initial guess as arguments
+                                                                            # maximmum allowed iterations, desired accuracy and initial guess as argument
 
         # Suppose we have to solve the system --
         # 1.x+1.y+1.z=10
@@ -254,7 +254,7 @@ class LinearSystemSolver:
 
 lss=LinearSystemSolver()                                                    # object creation
 for method in ["gauss","gauss-jordan","gauss-siedel"]:
-    solution=lss.solve([[16,3],[7,-11]],[11,13],method,10000,0.001,[1,1])
+    solution=lss.solve([[4,-1,-1],[-2,6,1],[-1,1,7]],[3,9,-6],method,10000,0.001,[0,0,0])
     print(solution)
 
 # New Class #
