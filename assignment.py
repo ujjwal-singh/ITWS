@@ -23,28 +23,29 @@ class LPsolver:
         # M=[[1,0,0,200],[0,1,0,10],[0,0,1,200],[1,2,3,700]], i.e.,
         # 1.x+0.y+0.z<=200 , 0.x+1.y+0.z<=10 , 0.x+0.y+1.z<=200 and 1.x+2.y+3.z<=700
         
-        self.objective=L
-        self.constraints=M
+        from numpy import array
+        self.objective=array(L,float)
+        self.constraints=array(M,float)
         no_of_variables=len(self.objective)                                 # variable to store total number of variables
         no_of_equations=len(self.constraints)                               # variable to store total number of equations(constraints)
-        self.table=[[0 for i in range(no_of_variables+no_of_equations+2)] for j in range(no_of_equations+1)]   # initialising the augmented matrix
+        self.table=array([[0 for i in range(no_of_variables+no_of_equations+2)] for j in range(no_of_equations+1)],float)   # initialising the augmented matrix
         for i in range(no_of_equations):
             for j in range(no_of_variables):
                 self.table[i][j]=self.constraints[i][j]                     # filling up the matrix
         for i in range(no_of_variables):
-            self.table[no_of_equations][i]=(-1)*self.objective[i]           # filling up the matrix
+            self.table[-1][i]=(-1)*self.objective[i]                        # filling up the matrix
         for i in range(no_of_equations+1):
             self.table[i][no_of_variables+i]=1                              # filling up the matrix
         for i in range(no_of_equations):
-            self.table[i][no_of_variables+no_of_equations+1]=self.constraints[i][-1]              # filling up the matrix
+            self.table[i][-1]=self.constraints[i][-1]                       # filling up the matrix
         self.table[-1][-1]=0                                                # matrix ready
         for i in range(no_of_equations+1):
             self.table[i][no_of_variables+i]=self.table[i][-1]/self.table[i][no_of_variables+i]
         flag=0
-        if(min(self.table[no_of_equations])>=0):                            # testing terminal condition
+        if(min(self.table[-1])>=0):                                         # testing terminal condition
             flag=1
         while(flag==0):                                                     # loop
-            pivot_col=self.table[no_of_equations].index(min(self.table[no_of_equations])) # finding column of pivot
+            pivot_col=self.table[-1].tolist().index(min(self.table[-1]))    # finding column of pivot
             pivot_row,temp,flag2=-1,0,0                                         
             for i in range(no_of_equations):                                                        
                 if(self.table[i][pivot_col]>0 and (pivot_row==-1 or self.table[i][-1]/self.table[i][pivot_col]<temp)):   # finding row of pivot
@@ -57,13 +58,9 @@ class LPsolver:
             for i in range(no_of_equations+1):                              # loop to set all other elements of pivot's column to 0 by row operations
                 if(i==pivot_row):
                     continue
-                temp=self.table[i][pivot_col]/pivot
-                for j in range(no_of_variables+no_of_equations+2):
-                    if(j==pivot_col):
-                        self.table[i][j]=0.0
-                    else:    
-                        self.table[i][j]=self.table[i][j]-(temp*self.table[pivot_row][j])
-            if(min(self.table[no_of_equations])>=0):
+                scale=self.table[i][pivot_col]/pivot
+                self.table[i]=self.table[i]-(scale*self.table[pivot_row])
+            if(min(self.table[-1])>=0):
                 flag=1                                                      # terminal condition
         self.result=""                                                      # string to store final answer
         for i in range(no_of_variables):                                    # building up the string
