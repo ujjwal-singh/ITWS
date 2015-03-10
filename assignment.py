@@ -196,7 +196,7 @@ class LinearSystemSolver:
     
     def GaussSiedel(self,A,B,max_iterations,accuracy,initial_guess):        # GaussSiedel function takes two lists 
                                                                             # (A is the co-efficient matrix, B is matrix of constants),         
-                                                                            # maximmum allowed iterations, desired accuracy and initial guess as arguments
+                                                                            # maximmum allowed iterations, desired accuracy and initial guess as argument
 
         # Suppose we have to solve the system --
         # 1.x+1.y+1.z=10
@@ -210,7 +210,8 @@ class LinearSystemSolver:
         # initial_guess (optional argument) is the starting matrix, e.g.--
         #initial_guess=[1,1,1]
         
-        from numpy import matrix                                            
+        from numpy import matrix     
+        from numpy import ones_like                                       
         from numpy.linalg import inv
         self.A=A
         self.b=B
@@ -219,7 +220,7 @@ class LinearSystemSolver:
         if(initial_guess!=None):
             self.initial_guess=initial_guess
         else:
-            self.initial_guess=[1 for i in range(len(self.A))]
+            self.initial_guess=ones_like(self.b)
         n=len(self.A)                                                       # finding order of co-efficient matrix
         mat=matrix(self.A)                                                  # defining co-efficient matrix
         self.b=matrix(self.b).transpose()                                   # defining constant matrix
@@ -232,7 +233,7 @@ class LinearSystemSolver:
         T=((-1)*inv(L))*U                                                   # calculating -U*(inverse of L)     
         C=inv(L)*self.b                                                     # calculating (inverse of L)*b
         diff,count=1,0                                                      # count variable counts number of iterations     
-        self.result=matrix([[i] for i in self.initial_guess])                    # initialising solution matrix
+        self.result=matrix(self.initial_guess).transpose()                    # initialising solution matrix
         while(diff>accuracy and count<max_iterations):                      # iteration loop
             x_new=T*self.result+C                                           # updating x
             diff=(abs(x_new-self.result)).max()                             # finding accuracy
