@@ -122,10 +122,11 @@ class LinearSystemSolver:
         # A=[[1,1,1],[0,1,0],[0,0,1]]
         # B=[10,2,5]
         
-        self.A=A
-        self.b=B
+        from numpy import array
+        self.A=array(A,float)
+        self.b=array(B,float)
         n=len(self.A)                                                       # finding order of co-efficient matrix
-        self.augmented=[[0 for i in range(n+1)] for j in range(n)]          # initialising the augmented matrix
+        self.augmented=array([[0 for i in range(n+1)] for j in range(n)],float)          # initialising the augmented matrix
         for i in range(n):
             for j in range(n):
                 self.augmented[i][j]=self.A[i][j]                           # filling up the entries of matrix A
@@ -142,12 +143,8 @@ class LinearSystemSolver:
                 if(flag==0):                                                
                     continue                                                # continue if the column contains only 0s
             for j in range(i+1,n):
-                temp=self.augmented[j][i]/self.augmented[i][i]                                    
-                for k in range(n+1):                                        # performing row operations to make the entries below the pivot=0
-                    if(k==i):
-                        self.augmented[j][k]=0.0
-                    else:
-                        self.augmented[j][k]=self.augmented[j][k]-temp*self.augmented[i][k]
+                scale=self.augmented[j][i]/self.augmented[i][i]                                    
+                self.augmented[j]=self.augmented[j]-scale*self.augmented[i] # performing row operations to make the entries below the pivot=0
         self.result=[0 for i in range(n)]                                   # initialisng the matrix containing the solution matrix
         for i in range(n-1,-1,-1):
             s=0
@@ -167,10 +164,11 @@ class LinearSystemSolver:
         # A=[[1,1,1],[2,1,-1],[-1,2,2]]
         # B=[6,1,9]
         
-        self.A=A
-        self.b=B
+        from numpy import array
+        self.A=array(A,float)
+        self.b=array(B,float)
         n=len(self.A)                                                       # finding order of co-efficient matrix
-        self.augmented=[[0 for i in range(n+1)] for j in range(n)]          # initialising the augmented matrix
+        self.augmented=array([[0 for i in range(n+1)] for j in range(n)],float)          # initialising the augmented matrix
         for i in range(n):
             for j in range(n):
                 self.augmented[i][j]=self.A[i][j]                           # filling up the entries of matrix A
@@ -189,12 +187,8 @@ class LinearSystemSolver:
             for j in range(n):
                 if(j==i):
                     continue
-                temp=self.augmented[j][i]/self.augmented[i][i]
-                for k in range(n+1):                                        # performing row operations to make the entries in the the pivot column=0
-                    if(k==i):
-                        self.augmented[j][k]=0.0
-                    else:
-                        self.augmented[j][k]=self.augmented[j][k]-temp*self.augmented[i][k]
+                scale=self.augmented[j][i]/self.augmented[i][i]
+                self.augmented[j]=self.augmented[j]-scale*self.augmented[i] # performing row operations to make the entries in the the pivot column=0
         self.result=[0 for i in range(n)]                                   # initialisng the matrix containing the solution matrix
         for i in range(n):                                                  
             self.result[i]=self.augmented[i][n]/self.augmented[i][i]        # solving
@@ -202,7 +196,7 @@ class LinearSystemSolver:
     
     def GaussSiedel(self,A,B,max_iterations,accuracy,initial_guess):        # GaussSiedel function takes two lists 
                                                                             # (A is the co-efficient matrix, B is matrix of constants),         
-                                                                            # maximmum allowed iterations, desired accuracy and initial guess as argument
+                                                                            # maximmum allowed iterations, desired accuracy and initial guess as arguments
 
         # Suppose we have to solve the system --
         # 1.x+1.y+1.z=10
