@@ -1,8 +1,13 @@
-class LPsolver:
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
-    # Class LPsolver created by --
-    # Name  : UJJWAL SINGH
-    # S.no. : 70
+def frange(a,b):
+    temp=a
+    while(temp<b):
+        yield(temp)
+        temp+=0.01
+        
+class LPsolver:
 
     def __init__(self):                                                     # Initialising instance variables
         self.objective=None
@@ -62,6 +67,19 @@ class LPsolver:
                 self.table[i]=self.table[i]-(scale*self.table[pivot_row])
             if(min(self.table[-1])>=0):
                 flag=1                                                      # terminal condition
+            x_pos,y_pos,count_1,count_2=0,0,0,0                             # variables to store boundary points
+            for i in range(no_of_equations+1):
+                if(self.table[i][0]!=0):
+                    count_1+=1
+                    x_pos=self.table[i][-1]/self.table[i][0]
+                if(self.table[i][1]!=0):
+                    count_2+=1
+                    y_pos=self.table[i][-1]/self.table[i][1]
+            if(count_1>1):
+                x_pos=0
+            if(count_2>1):
+                y_pos=0
+            plt.plot(x_pos,y_pos,"o",color="c")                             # plotting boundary points
         self.result=""                                                      # string to store final answer
         for i in range(no_of_variables):                                    # building up the string
             count,temp,flag=0,0,1
@@ -77,19 +95,56 @@ class LPsolver:
             else:
                 self.result+="x_"+str(i+1)+"=0 ; "
         self.result+="Maximum value of objective = "+str(self.table[-1][-1])
+        self.plot()
         return (self.result)                                                # return result
 
+    def plot(self):
+        Color=["b","g","r","y","m"]                                         # list of colors to be used
+        j=0                                                                 # counter variable
+        plt.xlabel("x axis")                                            
+        plt.ylabel("y axis")                                            
+        Legend=[]                                                           # initialising legend
+        x_max,y_max=0,0
+        for i in self.constraints:                                          
+            if(i[0]!=0):
+                temp=i[2]/i[0]
+                if(temp>x_max):
+                    x_max=temp
+            if(i[1]!=0):
+                temp=i[2]/i[1]
+                if(temp>y_max):
+                    y_max=temp
+        for i in self.constraints:                                          # plotting constraint lines
+            if(i[0]!=0 and i[1]!=0):
+                plt.plot([0,i[2]/i[0]],[i[2]/i[1],0],color=Color[j%5])
+                x=list(frange(0,i[2]/i[0]))
+                y1=list(map(lambda X:(i[2]-i[0]*X)/i[1],x))
+                y2=list(map(lambda X:0,x))
+                plt.fill_between(x,y1,y2,color=Color[j%5],alpha=0.7)        # filling color
+            elif(i[0]!=0):
+                plt.axvline(i[2],color=Color[j%5])
+                x=list(frange(0,i[2]/i[0]))
+                y1=list(map(lambda X:y_max,x))
+                y2=list(map(lambda X:0,x))
+                plt.fill_between(x,y1,y2,color=Color[j%5],alpha=0.7)        # filling color
+            else:
+                plt.axhline(i[2],color=Color[j%5])
+                x=list(frange(0,x_max))
+                y1=list(map(lambda X:i[2]/i[1],x))
+                y2=list(map(lambda X:0,x))
+                plt.fill_between(x,y1,y2,color=Color[j%5],alpha=0.7)        # filling color
+            Legend.append(mpatches.Patch(color=Color[j%5],label="Constraint "+str(j+1)))    # updating legend
+            j+=1
+        Legend.append(mpatches.Patch(color="w",label="The innermost region is the feasible region"))
+        Legend.append(mpatches.Patch(color="w",label="and its boundary points are the critical points"))
+        plt.legend(handles=Legend)                                          # putting legend on graph
+        plt.show()                                                          # displaying graph
+
 lps=LPsolver()                                                              # object creation
-solution=lps.solve([1,3],[[1,2,10],[1,0,5],[0,1,4]],option="Simplex")       # calling Simplex method
+solution=lps.solve([3,2],[[2,1,18],[2,3,42],[3,1,24]],option="Simplex")     # calling Simplex method
 print(solution)
 
-# New Class #
-
 class LinearSystemSolver:
-
-    # Class LinearSystemSolver created by --
-    # Name  : SUSHISH KUMAR
-    # S.no. : 69
 
     def __init__(self):                                                     # initialising instance variables
         self.A=None
@@ -249,13 +304,10 @@ for method in ["gauss","gauss-jordan","gauss-siedel"]:
     solution=lss.solve([[4,-1,-1],[-2,6,1],[-1,1,7]],[3,9,-6],method,10000,0.001,[0,0,0])
     print(solution)
 
-# New Class #
+from numpy import array
+from numpy.polynomial import polynomial as P
 
 class PolynomialSolver:
-
-    # Class PolynomialSolver created by --
-    # Name  : SUMAN KUMAR
-    # S.no. : 67
 
     def __init__(self):
         self.order=None
@@ -294,19 +346,38 @@ class PolynomialSolver:
         self.interval=interval
         self.max_iterations=max_iterations
         self.accuracy=accuracy
-        from numpy.polynomial import polynomial as P
         count=0                                                             # variable to count number of iterations
+
+        x=list(frange(self.interval[0],self.interval[1]))
+        y=list(map(lambda X:P.polyval(X,self.co_eff),x))
+        plt.plot(x,y,linewidth=2)                                           # plotting polynomial
+        plt.axhline(0,color="k",linewidth=2)
+        plt.plot(self.interval,[-30,-30],color="r")                         # plotting interval range
+        plt.xlabel("x values")
+        plt.ylabel("f(x) values")
+        Legend=[]                                                           # initialising legend     
+        Legend.append(mpatches.Patch(color="b",label="Polynomial graph"))   # updating legend
+        Legend.append(mpatches.Patch(color="r",label="Interval selected"))
+        plt.legend(handles=Legend)                                          # putting legend on the plot
+
         while(count<self.max_iterations):
             if(P.polyval(self.interval[0],self.co_eff)*P.polyval(self.interval[1],self.co_eff)<0 and self.interval[1]-self.interval[0]<=self.accuracy):  
+                plt.show()                                                  # displaying plot
                 return (self.interval)                                      # return interval (terminal condition)
             m=(self.interval[0]+self.interval[1])/2
             if(P.polyval(self.interval[0],self.co_eff)*P.polyval(m,self.co_eff)<0):
                 self.interval=[self.interval[0],m]                          # bisection
             else:
                 self.interval=[m,self.interval[1]]                          # bisection
+            self.plot((count+2)*30)
             count+=1
         return ("Iterations exceed limit")
     
+    def plot(self,temp):
+        plt.plot(self.interval,[-1*temp,-1*temp],color="r")                 # plotting current interval range
+        plt.plot([self.interval[0],self.interval[0]],[-1*temp-5,-1*temp+5],color="r")
+        plt.plot([self.interval[1],self.interval[1]],[-1*temp-5,-1*temp+5],color="r")
+        
     def Secant(self,L,initial_guess,max_iterations,accuracy):               # Secant function takes 5 arguments
         
         # L is the co-efficient list, e.g.,-
@@ -321,7 +392,6 @@ class PolynomialSolver:
         self.initial_guess=initial_guess
         self.max_iterations=max_iterations
         self.accuracy=accuracy
-        from numpy.polynomial import polynomial as P
         x,y=self.initial_guess[0],self.initial_guess[1]                     # x and y store the initial guesses
         count=0                                                             # variable to count number of iterations
         while(count<self.max_iterations):
@@ -346,7 +416,6 @@ class PolynomialSolver:
         self.initial_guess=initial_guess
         self.max_iterations=max_iterations
         self.accuracy=accuracy
-        from numpy.polynomial import polynomial as P
         x,y=self.initial_guess[0],self.initial_guess[1]                     # x and y store the initial guesses
         count=0                                                             # variable to count number of iterations
         while(count<self.max_iterations):
@@ -374,7 +443,6 @@ class PolynomialSolver:
         self.initial_guess=initial_guess
         self.max_iterations=max_iterations
         self.accuracy=accuracy
-        from numpy.polynomial import polynomial as P
         derivative=P.polyder(self.co_eff)                                   # calculating derivative of polynomial
         x=self.initial_guess                                                # variable to store initial guess
         count=0                                                             # variable to count iterations
@@ -388,21 +456,18 @@ class PolynomialSolver:
 
 ps=PolynomialSolver()                                                     # object creation
 for method in ["bisection","secant","secantrf","newtonraphson"]:
-    solution=ps.solve(2,[14,-9,1],[1,2.5],method,[1,3],1,10000,0.0001)
+    solution=ps.solve(2,[500,-60,1],[15,60],method,[1,15],1,10000,0.0001)
     print(solution)
-
-# New Class #
+    
 
 class Interpolate:
     
-    # Class Interpolate created by --
-    # Name  : ROBIN CHAWLA
-    # S.no. : 57
-
     def __init__(self):
         self.x_values=None
         self.fx_values=None
+        self.result=None
         self.polynomial=None
+        self.polylist=None
 
     def solve(self,L,M,method):
         if(method=="newton"):
@@ -420,29 +485,53 @@ class Interpolate:
         
         self.x_values=L
         self.fx_values=M
-        from numpy import array
-        from numpy.polynomial import polynomial as P
+        self.polylist=[]
         n=len(self.x_values)                                                # n=length of L, i.e., the number of points
         w=(-1*self.x_values[0],1)                                           # initialising polynomial w
         for i in range(1,n):
             w=P.polymul(w,(-1*self.x_values[i],1))                          # calculating w
-        result=array([0.0 for i in range(len(w)-1)])                        # initialising result array
+        self.result=array([0.0 for i in range(len(w)-1)])                        # initialising result array
         derivative=P.polyder(w)                                             # derivative of w
         for i in range(n):
-            result+=(P.polydiv(w,(-1*self.x_values[i],1))[0]*self.fx_values[i])/P.polyval(self.x_values[i],derivative)# calculating result
-        result=list(result)                                                 # list of co-efficients
+            self.polylist.append((P.polydiv(w,(-1*self.x_values[i],1))[0]*self.fx_values[i])/P.polyval(self.x_values[i],derivative))# calculating result
+            self.result+=self.polylist[-1]
+        self.result=list(self.result)                                                 # list of co-efficients
         self.polynomial=""                                                  # string to store final polynomial
-        for i in range(len(result)-1,0,-1):                                 # building up the string
-            if(result[i]!=0):
-                if(result[i]>0 and i!=(len(result)-1)):
-                    self.polynomial+=" + "+str(result[i])+"x^"+str(i)+" "
-                elif(result[i]>0 and i==(len(result)-1)):
-                    self.polynomial+=str(result[i])+"x^"+str(i)+" "
+        for i in range(len(self.result)-1,0,-1):                                 # building up the string
+            if(self.result[i]!=0):
+                if(self.result[i]>0 and i!=(len(self.result)-1)):
+                    self.polynomial+=" + "+str(self.result[i])+"x^"+str(i)+" "
+                elif(self.result[i]>0 and i==(len(self.result)-1)):
+                    self.polynomial+=str(self.result[i])+"x^"+str(i)+" "
                 else:
-                    self.polynomial+=" - "+str(-1*result[i])+"x^"+str(i)+" "
-        if(result[0]!=0):
-            self.polynomial+=" + "+str(result[0]) if result[0]>0 else " - "+str(-1*result[0])
+                    self.polynomial+=" - "+str(-1*self.result[i])+"x^"+str(i)+" "
+        if(self.result[0]!=0):
+            self.polynomial+=" + "+str(self.result[0]) if self.result[0]>0 else " - "+str(-1*self.result[0])
+        self.plot()
         return (self.polynomial)                                            # return result
+
+    def plot(self):
+        Color=["b","g","r","y","m"]                                         # list of colors to be used
+        Legend=[]                                                           # initialising legend
+        for i in range(len(self.polylist)):                                 # plotting polynomials
+            x=list(frange(min(self.x_values)-1,max(self.x_values)+1))
+            y=list(map(lambda num:P.polyval(num,self.polylist[i]),x))
+            plt.plot(x,y,linewidth=2.0,color=Color[i%5])
+            Legend.append(mpatches.Patch(color=Color[i%5],label="Polynomial "+str(i+1)))    # updating legend
+        x=list(frange(min(self.x_values)-1,max(self.x_values)+1))
+        y=list(map(lambda num:P.polyval(num,array(self.result)),x))
+        plt.plot(x,y,linewidth=3.0,color="k")                               # plotting final polynomial
+        Legend.append(mpatches.Patch(color="k",label="Final polynomial"))   
+        x=self.x_values
+        y=list(map(lambda num:P.polyval(num,array(self.result)),x))         
+        plt.plot(x,y,"o",color="c")                                         
+        plt.axis("equal")
+        plt.axvline(0,color="k")
+        plt.axhline(0,color="k")
+        plt.xlabel(" x values ")
+        plt.ylabel("f(x) values")
+        plt.legend(handles=Legend)                                          # putting legend on the plot
+        plt.show()                                                          # displaying plot
 
     def Newton(self,L,M):                                                   # Newton function takes two lists as arguments
 
@@ -454,8 +543,6 @@ class Interpolate:
         
         self.x_values=L
         self.fx_values=M
-        from numpy import array
-        from numpy.polynomial import polynomial as P
         n=len(self.x_values)                                                # n=length of L, i.e., the number of points
         mat=[[0.0 for i in range(n)] for j in range(n)]                     # initialising an n*n matrix 
         for i in range(n):                                                  # filling 1st column of matrix with f(x) values
@@ -492,18 +579,13 @@ class Interpolate:
 
 apx=Interpolate()                                                          # object creation
 for method in ["newton","lagrange"]:
-    solution=apx.solve([-1,0,1,2],[-5,1,3,7],method)
+    solution=apx.solve([-9,-4,-1,7],[5,2,-2,9],method)
     print(solution)
 
-# New Class #
 
 import math
 from math import *
 class Integrate:
-
-    # Class PolynomialSolver created by --
-    # Name  : D Aravind
-    # S.no. : 24
 
     def __init__(self):
         self.function=None
@@ -550,7 +632,34 @@ class Integrate:
             sum_of_values+=2*self.function(self.interval[0]+length*i)
         sum_of_values+=self.function(self.interval[1])
         self.result=((self.interval[1]-self.interval[0])*sum_of_values)/(2*self.no_of_partitions)  # calculating result
+        self.plot()
         return (self.result)                                                # return result
+    
+    def plot(self):
+        length=(self.interval[1]-self.interval[0])/self.no_of_partitions    
+        x=list(frange(self.interval[0],self.interval[1]))
+        y=list(map(lambda num:self.function(num), x))
+        plt.plot(x,y,linewidth=2.0,color="b")                               # plotting function plot
+        plt.plot([self.interval[0]]*2,[0,self.function(self.interval[0])],color="m")
+        prev_x,prev_y=self.interval[0],self.function(self.interval[0])
+        for i in range(self.no_of_partitions):                              # plotting sides of trapeziums
+            current_x=prev_x+length
+            current_y=self.function(current_x)
+            plt.plot([current_x]*2,[0,current_y],color="m")
+            plt.plot([prev_x,current_x],[prev_y,current_y],color="m",linewidth=1.2)
+            prev_x=current_x
+            prev_y=current_y
+            
+        plt.axis("equal")
+        plt.axvline(0,color="k",linewidth=2.0)
+        plt.axhline(0,color="k",linewidth=2.0)
+        plt.xlabel("x values")
+        plt.ylabel("f(x) values")
+        Legend=[]                                                           # initialising legend
+        Legend.append(mpatches.Patch(color="b",label="Function graph "))    # updating legend
+        Legend.append(mpatches.Patch(color="m",label="Sides of trapeziums"))
+        plt.legend(handles=Legend)                                          # putting legend on the plot
+        plt.show()                                                          # displaying plot          
     
     def SimpsonsRule(self,S,interval,N):                                    # The function takes 3 user inputs
 
@@ -587,5 +696,5 @@ class Integrate:
     
 igr=Integrate()                                                     # object creation
 for method in ["trapezoid","simpson"]:
-    solution=igr.solve("sin(x**0.5)+cos(x)+exp(pow(x,2))+log(x)",[1,2],method,10000)
+    solution=igr.solve("sin(x)**3+cos(x)**2",[-4,2],method,25)
     print (solution)
